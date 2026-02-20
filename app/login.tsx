@@ -49,9 +49,7 @@ export default function LoginScreen() {
     })();
   }, []);
 
-  const redirectUri = AuthSession.makeRedirectUri({
-    path: "login",
-  });
+  const redirectUri = AuthSession.makeRedirectUri();
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
