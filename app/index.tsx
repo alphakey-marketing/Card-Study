@@ -152,10 +152,7 @@ export default function HomeScreen() {
   };
 
   const handleSignOut = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Sign Out", style: "destructive", onPress: signOut },
-    ]);
+    // Local only, no sign out needed
   };
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
@@ -178,23 +175,6 @@ export default function HomeScreen() {
           </Text>
         </Animated.View>
         <View style={styles.headerRight}>
-          <Pressable
-            onPress={handleSignOut}
-            hitSlop={12}
-            style={styles.avatarButton}
-          >
-            {user?.avatarUrl ? (
-              <Animated.Image
-                entering={FadeIn.duration(400)}
-                source={{ uri: user.avatarUrl }}
-                style={styles.avatar}
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={16} color={Colors.textSecondary} />
-              </View>
-            )}
-          </Pressable>
           <Pressable
             style={({ pressed }) => [
               styles.createButton,

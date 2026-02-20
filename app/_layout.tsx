@@ -32,17 +32,11 @@ function RootLayoutNav() {
 
   return (
     <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
-      {!user ? (
-        <Stack.Screen name="login" options={{ animationTypeForReplace: "pop" }} />
-      ) : (
-        <>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="create" options={{ presentation: "modal" }} />
-          <Stack.Screen name="edit/[id]" options={{ presentation: "modal" }} />
-          <Stack.Screen name="study/[id]" />
-          <Stack.Screen name="swipe/[id]" />
-        </>
-      )}
+      <Stack.Screen name="index" />
+      <Stack.Screen name="create" options={{ presentation: "modal" }} />
+      <Stack.Screen name="edit/[id]" options={{ presentation: "modal" }} />
+      <Stack.Screen name="study/[id]" />
+      <Stack.Screen name="swipe/[id]" />
     </Stack>
   );
 }

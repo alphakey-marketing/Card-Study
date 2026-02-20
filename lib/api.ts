@@ -1,34 +1,14 @@
-import { apiRequest } from "./query-client";
+import * as Storage from "./storage";
 
-export interface Flashcard {
-  id: string;
-  front: string;
-  back: string;
-}
-
-export interface FlashcardSet {
-  id: string;
-  userId: string;
-  title: string;
-  description: string;
-  cards: Flashcard[];
-  knownCardIds: string[];
-  createdAt: number;
-  updatedAt: number;
-}
+export type Flashcard = Storage.Flashcard;
+export type FlashcardSet = Storage.FlashcardSet;
 
 export async function getAllSets(): Promise<FlashcardSet[]> {
-  const res = await apiRequest("GET", "/api/sets");
-  return res.json();
+  return Storage.getAllSets();
 }
 
 export async function getSet(id: string): Promise<FlashcardSet | null> {
-  try {
-    const res = await apiRequest("GET", `/api/sets/${id}`);
-    return res.json();
-  } catch {
-    return null;
-  }
+  return Storage.getSet(id);
 }
 
 export async function createSetOnServer(data: {
@@ -36,8 +16,9 @@ export async function createSetOnServer(data: {
   description: string;
   cards: { id: string; front: string; back: string }[];
 }): Promise<FlashcardSet> {
-  const res = await apiRequest("POST", "/api/sets", data);
-  return res.json();
+  const newSet = Storage.createNewSet(data.title, data.description, data.cards);
+  await Storage.saveSet(newSet);
+  return newSet;
 }
 
 export async function updateSetOnServer(
@@ -49,17 +30,26 @@ export async function updateSetOnServer(
     knownCardIds?: string[];
   }
 ): Promise<FlashcardSet> {
-  const res = await apiRequest("PUT", `/api/sets/${id}`, data);
-  return res.json();
+  const set = await Storage.getSet(id);
+  if (!set) throw new Error("Set not found");
+
+  if (data.title !== undefined) set.title = data.title;
+  if (data.description !== undefined) set.description = data.description;
+  if (data.cards !== undefined) set.cards = data.cards;
+  if (data.knownCardIds !== undefined) set.knownCardIds = data.knownCardIds;
+  
+  set.updatedAt = Date.now();
+  await Storage.saveSet(set);
+  return set;
 }
 
 export async function deleteSetOnServer(id: string): Promise<void> {
-  await apiRequest("DELETE", `/api/sets/${id}`);
+  await Storage.deleteSet(id);
 }
 
 export async function updateKnownCards(
   setId: string,
   knownCardIds: string[]
 ): Promise<void> {
-  await apiRequest("PUT", `/api/sets/${setId}`, { knownCardIds });
+  await Storage.updateKnownCards(setId, knownCardIds);
 }

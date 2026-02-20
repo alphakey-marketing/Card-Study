@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiRequest, getApiUrl } from "./query-client";
-import { fetch } from "expo/fetch";
 
 interface AuthUser {
   id: string;
@@ -30,62 +28,32 @@ export function useAuth() {
 
 const AUTH_CACHE_KEY = "flashmind_auth_user";
 
+// Default local user since we are removing Google login
+const LOCAL_USER: AuthUser = {
+  id: "local-user",
+  name: "Local User",
+  email: "local@example.com",
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(LOCAL_USER);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    checkAuth();
+    // We just keep the local user as the default
+    setIsLoading(false);
   }, []);
 
-  async function checkAuth() {
-    try {
-      const cached = await AsyncStorage.getItem(AUTH_CACHE_KEY);
-      if (cached) {
-        setUser(JSON.parse(cached));
-      }
-
-      const baseUrl = getApiUrl();
-      const res = await fetch(new URL("/api/auth/me", baseUrl).toString(), {
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-        await AsyncStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(data.user));
-      } else {
-        setUser(null);
-        await AsyncStorage.removeItem(AUTH_CACHE_KEY);
-      }
-    } catch {
-      const cached = await AsyncStorage.getItem(AUTH_CACHE_KEY);
-      if (cached) {
-        setUser(JSON.parse(cached));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   async function signIn(token: string, type: "id" | "access") {
-    const body = type === "id" ? { idToken: token } : { accessToken: token };
-    const res = await apiRequest("POST", "/api/auth/google", body);
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || "Authentication failed");
-    }
-    const data = await res.json();
-    setUser(data.user);
-    await AsyncStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(data.user));
+    // No-op as we are always "signed in" locally
+    setUser(LOCAL_USER);
   }
 
   async function signOut() {
-    try {
-      await apiRequest("POST", "/api/auth/logout");
-    } catch {}
-    setUser(null);
-    await AsyncStorage.removeItem(AUTH_CACHE_KEY);
+    // In a local-only app, sign out might not be needed, but we can clear if desired
+    // For now, let's just keep it as is or reset to null if the user really wants to "log out"
+    // However, the requirement says "all data stay local and offline", so a permanent local session is better.
+    // setUser(null); 
   }
 
   return (
