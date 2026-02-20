@@ -205,19 +205,6 @@ export default function StudyScreen() {
             {currentIndex + 1} / {cards.length}
           </Text>
         </View>
-        <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push({ pathname: "/swipe/[id]", params: { id: set.id } });
-          }}
-          hitSlop={12}
-        >
-          <MaterialCommunityIcons
-            name="cards-outline"
-            size={24}
-            color={Colors.primary}
-          />
-        </Pressable>
       </View>
 
       <View style={styles.progressBarContainer}>

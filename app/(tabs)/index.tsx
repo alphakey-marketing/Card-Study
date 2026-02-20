@@ -54,7 +54,7 @@ function SetCard({
         ]}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push({ pathname: "/study/[id]", params: { id: set.id } });
+          router.push({ pathname: "/swipe/[id]", params: { id: set.id } });
         }}
         onLongPress={handleLongPress}
         testID={`set-card-${set.id}`}
