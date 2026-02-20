@@ -331,13 +331,14 @@ export default function SwipeScreen() {
   }, [currentIndex, cards]);
 
   const handleSwipeLeft = useCallback(() => {
+    if (!cards[currentIndex]) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // If swiped left, we add it back to the end of the cards array to study again
+    const currentCard = cards[currentIndex];
+    setCards((prev) => [...prev, { ...currentCard, id: `${currentCard.id}-retry-${Date.now()}` }]);
+    
     setTimeout(() => {
-      if (currentIndex >= cards.length - 1) {
-        setSessionDone(true);
-      } else {
-        setCurrentIndex((prev) => prev + 1);
-      }
+      setCurrentIndex((prev) => prev + 1);
     }, 300);
   }, [currentIndex, cards]);
 
