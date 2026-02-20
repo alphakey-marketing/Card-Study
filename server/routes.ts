@@ -48,6 +48,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })
   );
 
+  app.get("/api/auth/config", (_req: Request, res: Response) => {
+    res.json({
+      googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+    });
+  });
+
   app.post("/api/auth/google", async (req: Request, res: Response) => {
     try {
       const { idToken, accessToken } = req.body;

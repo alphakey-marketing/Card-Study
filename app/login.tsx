@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,8 @@ import * as WebBrowser from "expo-web-browser";
 import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import { useAuth } from "@/lib/auth-context";
+import { getApiUrl } from "@/lib/query-client";
+import { fetch } from "expo/fetch";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -29,11 +31,23 @@ export default function LoginScreen() {
   const { signIn } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
 
-  const clientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+  useEffect(() => {
+    (async () => {
+      try {
+        const baseUrl = getApiUrl();
+        const res = await fetch(new URL("/api/auth/config", baseUrl).toString());
+        const data = await res.json();
+        if (data.googleClientId) {
+          setClientId(data.googleClientId);
+        }
+      } catch {}
+    })();
+  }, []);
 
   const redirectUri = AuthSession.makeRedirectUri({
     scheme: "com.flashmind.app",
@@ -49,7 +63,7 @@ export default function LoginScreen() {
     discovery
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (response?.type === "success") {
       const { access_token } = response.params;
       handleSignIn(access_token);
@@ -125,7 +139,7 @@ export default function LoginScreen() {
               loading && styles.googleButtonDisabled,
             ]}
             onPress={handleGooglePress}
-            disabled={loading}
+            disabled={loading || !clientId}
           >
             {loading ? (
               <ActivityIndicator size="small" color={Colors.text} />
