@@ -18,7 +18,8 @@ import Animated, {
   FadeIn,
 } from "react-native-reanimated";
 import Colors from "@/constants/colors";
-import { FlashcardSet, getAllSets, deleteSet } from "@/lib/storage";
+import { useAuth } from "@/lib/auth-context";
+import { FlashcardSet, getAllSets, deleteSetOnServer } from "@/lib/api";
 
 function SetCard({
   set,
@@ -113,13 +114,18 @@ function SetCard({
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { user, signOut } = useAuth();
   const [sets, setSets] = useState<FlashcardSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadSets = useCallback(async () => {
-    const data = await getAllSets();
-    setSets(data);
+    try {
+      const data = await getAllSets();
+      setSets(data);
+    } catch {
+      setSets([]);
+    }
     setLoading(false);
   }, []);
 
@@ -136,9 +142,20 @@ export default function HomeScreen() {
   };
 
   const handleDelete = async (id: string) => {
-    await deleteSet(id);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    loadSets();
+    try {
+      await deleteSetOnServer(id);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      loadSets();
+    } catch {
+      Alert.alert("Error", "Failed to delete set.");
+    }
+  };
+
+  const handleSignOut = () => {
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Sign Out", style: "destructive", onPress: signOut },
+    ]);
   };
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
@@ -152,7 +169,7 @@ export default function HomeScreen() {
           { paddingTop: insets.top + webTopInset + 12 },
         ]}
       >
-        <Animated.View entering={FadeIn.duration(500)}>
+        <Animated.View entering={FadeIn.duration(500)} style={styles.headerLeft}>
           <Text style={styles.headerTitle}>FlashMind</Text>
           <Text style={styles.headerSubtitle}>
             {sets.length > 0
@@ -160,19 +177,38 @@ export default function HomeScreen() {
               : "Create your first set"}
           </Text>
         </Animated.View>
-        <Pressable
-          style={({ pressed }) => [
-            styles.createButton,
-            pressed && styles.createButtonPressed,
-          ]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            router.push("/create");
-          }}
-          testID="create-set-button"
-        >
-          <Ionicons name="add" size={24} color="#fff" />
-        </Pressable>
+        <View style={styles.headerRight}>
+          <Pressable
+            onPress={handleSignOut}
+            hitSlop={12}
+            style={styles.avatarButton}
+          >
+            {user?.avatarUrl ? (
+              <Animated.Image
+                entering={FadeIn.duration(400)}
+                source={{ uri: user.avatarUrl }}
+                style={styles.avatar}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={16} color={Colors.textSecondary} />
+              </View>
+            )}
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.createButton,
+              pressed && styles.createButtonPressed,
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/create");
+            }}
+            testID="create-set-button"
+          >
+            <Ionicons name="add" size={24} color="#fff" />
+          </Pressable>
+        </View>
       </View>
 
       {!loading && sets.length === 0 ? (
@@ -231,6 +267,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
   },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
   headerTitle: {
     fontSize: 28,
     fontFamily: "DMSans_700Bold",
@@ -242,6 +286,26 @@ const styles = StyleSheet.create({
     fontFamily: "DMSans_400Regular",
     color: Colors.textSecondary,
     marginTop: 2,
+  },
+  avatarButton: {
+    marginBottom: 2,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: Colors.borderLight,
+  },
+  avatarPlaceholder: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.surfaceElevated,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   createButton: {
     width: 44,

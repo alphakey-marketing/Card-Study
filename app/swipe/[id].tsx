@@ -27,7 +27,7 @@ import {
   GestureDetector,
 } from "react-native-gesture-handler";
 import Colors from "@/constants/colors";
-import { FlashcardSet, getSet, updateKnownCards, Flashcard } from "@/lib/storage";
+import { FlashcardSet, Flashcard, getSet, updateKnownCards } from "@/lib/api";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
@@ -333,7 +333,6 @@ export default function SwipeScreen() {
   const handleSwipeLeft = useCallback(() => {
     if (!cards[currentIndex]) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // If swiped left, we add it back to the end of the cards array to study again
     const currentCard = cards[currentIndex];
     setCards((prev) => [...prev, { ...currentCard, id: `${currentCard.id}-retry-${Date.now()}` }]);
     

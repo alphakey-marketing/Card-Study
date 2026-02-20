@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -19,10 +19,9 @@ import Animated, {
   interpolate,
   Easing,
   FadeIn,
-  runOnJS,
 } from "react-native-reanimated";
 import Colors from "@/constants/colors";
-import { FlashcardSet, getSet, updateKnownCards, Flashcard } from "@/lib/storage";
+import { FlashcardSet, Flashcard, getSet, updateKnownCards } from "@/lib/api";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 

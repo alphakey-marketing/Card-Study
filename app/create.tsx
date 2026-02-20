@@ -17,7 +17,7 @@ import * as Crypto from "expo-crypto";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import Colors from "@/constants/colors";
-import { createNewSet, saveSet } from "@/lib/storage";
+import { createSetOnServer } from "@/lib/api";
 
 interface CardDraft {
   id: string;
@@ -132,14 +132,21 @@ export default function CreateScreen() {
       return;
     }
 
-    const set = createNewSet(
-      title.trim(),
-      description.trim(),
-      validCards.map((c) => ({ front: c.front.trim(), back: c.back.trim() }))
-    );
-    await saveSet(set);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    router.back();
+    try {
+      await createSetOnServer({
+        title: title.trim(),
+        description: description.trim(),
+        cards: validCards.map((c) => ({
+          id: Crypto.randomUUID(),
+          front: c.front.trim(),
+          back: c.back.trim(),
+        })),
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.back();
+    } catch {
+      Alert.alert("Error", "Failed to save set. Please try again.");
+    }
   };
 
   return (
