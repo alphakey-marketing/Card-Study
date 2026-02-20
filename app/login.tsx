@@ -50,8 +50,8 @@ export default function LoginScreen() {
   }, []);
 
   const redirectUri = AuthSession.makeRedirectUri({
+    scheme: "flashmind",
     path: "login",
-    preferLocalhost: !__DEV__,
   });
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(

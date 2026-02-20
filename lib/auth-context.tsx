@@ -71,6 +71,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signIn(token: string, type: "id" | "access") {
     const body = type === "id" ? { idToken: token } : { accessToken: token };
     const res = await apiRequest("POST", "/api/auth/google", body);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || "Authentication failed");
+    }
     const data = await res.json();
     setUser(data.user);
     await AsyncStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(data.user));
