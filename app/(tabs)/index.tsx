@@ -18,7 +18,6 @@ import Animated, {
   FadeIn,
 } from "react-native-reanimated";
 import Colors from "@/constants/colors";
-import { useAuth } from "@/lib/auth-context";
 import { FlashcardSet, getAllSets, deleteSetOnServer } from "@/lib/api";
 
 function SetCard({
@@ -114,7 +113,6 @@ function SetCard({
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { user, signOut } = useAuth();
   const [sets, setSets] = useState<FlashcardSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -149,10 +147,6 @@ export default function HomeScreen() {
     } catch {
       Alert.alert("Error", "Failed to delete set.");
     }
-  };
-
-  const handleSignOut = () => {
-    // Local only, no sign out needed
   };
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
