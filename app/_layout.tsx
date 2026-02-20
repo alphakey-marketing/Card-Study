@@ -6,7 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { AuthProvider } from "@/lib/auth-context";
 import {
   useFonts,
   DMSans_400Regular,
@@ -14,41 +14,25 @@ import {
   DMSans_600SemiBold,
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
 import Colors from "@/constants/colors";
 
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <View style={loadingStyles.container}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
-    );
-  }
-
   return (
     <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
-      <Stack.Screen name="index" />
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen name="create" options={{ presentation: "modal" }} />
       <Stack.Screen name="edit/[id]" options={{ presentation: "modal" }} />
       <Stack.Screen name="study/[id]" />
       <Stack.Screen name="swipe/[id]" />
+      <Stack.Screen name="notes/create" options={{ presentation: "modal" }} />
+      <Stack.Screen name="notes/[id]" />
+      <Stack.Screen name="notebooks/manage" />
+      <Stack.Screen name="notebooks/[id]" />
     </Stack>
   );
 }
-
-const loadingStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-  },
-});
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
