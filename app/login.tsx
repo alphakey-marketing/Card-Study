@@ -50,7 +50,7 @@ export default function LoginScreen() {
   }, []);
 
   const redirectUri = AuthSession.makeRedirectUri({
-    scheme: "com.flashmind.app",
+    path: "login",
   });
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
