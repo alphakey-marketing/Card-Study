@@ -407,7 +407,9 @@ export default function SwipeScreen() {
             {currentIndex + 1} / {cards.length}
           </Text>
         </View>
-        <View style={{ width: 26 }} />
+        <Pressable onPress={handleRestart} hitSlop={12}>
+          <Ionicons name="shuffle" size={24} color={Colors.primary} />
+        </Pressable>
       </View>
 
       <View style={styles.progressBarContainer}>
