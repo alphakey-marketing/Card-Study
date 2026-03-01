@@ -1,12 +1,12 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
-import { AuthProvider } from "@/lib/auth-context";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import {
   useFonts,
   DMSans_400Regular,
@@ -14,13 +14,27 @@ import {
   DMSans_600SemiBold,
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
-import Colors from "@/constants/colors";
 
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
+  const { user, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+    const inAuthGroup = segments[0] === "login";
+    if (!user && !inAuthGroup) {
+      router.replace("/login");
+    } else if (user && inAuthGroup) {
+      router.replace("/");
+    }
+  }, [user, isLoading, segments]);
+
   return (
     <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
+      <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="create" options={{ presentation: "modal" }} />
       <Stack.Screen name="edit/[id]" options={{ presentation: "modal" }} />
