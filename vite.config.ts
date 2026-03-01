@@ -12,7 +12,8 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // Required for Replit to expose the web server
-    port: 5173,
+    port: 5000,
     strictPort: true,
+    allowedHosts: true
   }
 })
