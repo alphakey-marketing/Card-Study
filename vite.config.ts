@@ -11,12 +11,13 @@ export default defineConfig({
     },
   },
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 5173,
     strictPort: false,
     hmr: {
-      clientPort: 443,
-      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : 'localhost'
-    }
+      clientPort: 443
+    },
+    // Disable host check completely for Replit
+    strictHostCheck: false
   }
 })
