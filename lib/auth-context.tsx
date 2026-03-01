@@ -5,7 +5,7 @@ interface AuthUser {
   id: string;
   name: string;
   email: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextType {
@@ -26,34 +26,53 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
-const AUTH_CACHE_KEY = "flashmind_auth_user";
-
-// Default local user since we are removing Google login
-const LOCAL_USER: AuthUser = {
-  id: "local-user",
-  name: "Local User",
-  email: "local@example.com",
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(LOCAL_USER);
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // We just keep the local user as the default
-    setIsLoading(false);
+    checkSession();
   }, []);
 
+  async function checkSession() {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      }
+    } catch (e) {
+      console.log("No session found");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function signIn(token: string, type: "id" | "access") {
-    // No-op as we are always "signed in" locally
-    setUser(LOCAL_USER);
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      } else {
+        console.error("Failed to authenticate");
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async function signOut() {
-    // In a local-only app, sign out might not be needed, but we can clear if desired
-    // For now, let's just keep it as is or reset to null if the user really wants to "log out"
-    // However, the requirement says "all data stay local and offline", so a permanent local session is better.
-    // setUser(null); 
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setUser(null);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
