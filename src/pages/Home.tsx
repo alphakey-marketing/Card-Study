@@ -10,7 +10,8 @@ export default function Home() {
     setSets(getAllSets());
   }, []);
 
-  const handleDelete = (id: string, title: string) => {
+  const handleDelete = (e: React.MouseEvent, id: string, title: string) => {
+    e.stopPropagation(); // Prevent card click when deleting
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
       deleteSet(id);
       setSets(getAllSets());
@@ -49,12 +50,16 @@ export default function Home() {
             const progress = totalCount > 0 ? (knownCount / totalCount) * 100 : 0;
 
             return (
-              <div key={set.id} style={styles.setCard}>
+              <div 
+                key={set.id} 
+                style={styles.setCard}
+                onClick={() => navigate(`/swipe/${set.id}`)}
+              >
                 <div style={styles.setCardHeader}>
                   <div style={styles.setCardTitleRow}>
                     <h3 style={styles.setCardTitle}>{set.title}</h3>
                     <button
-                      onClick={() => handleDelete(set.id, set.title)}
+                      onClick={(e) => handleDelete(e, set.id, set.title)}
                       style={styles.deleteBtn}
                     >
                       🗑
@@ -148,6 +153,8 @@ const styles = {
     borderRadius: "16px",
     padding: "18px",
     border: "1px solid #e2e8f0",
+    cursor: "pointer",
+    transition: "transform 0.1s ease, box-shadow 0.1s ease",
   },
   setCardHeader: {
     marginBottom: "14px",
