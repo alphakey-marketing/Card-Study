@@ -1,23 +1,22 @@
-{
-  "$schema": "https://json.schemastore.org/replit.json",
-  "run": "npm run dev",
-  "entrypoint": "src/main.tsx",
-  "modules": [
-    "nodejs-22",
-    "typescript-language-server",
-    "vite"
-  ],
-  "hidden": [
-    ".replit",
-    ".git",
-    "node_modules",
-    "package-lock.json"
-  ],
-  "ports": [
-    {
-      "localPort": 5173,
-      "publicPort": 80,
-      "routingMode": "OFFDB"
-    }
-  ]
-}
+run = "npm run dev"
+modules = ["nodejs-20"]
+hidden = [".config", "tsconfig.json", "tsconfig.node.json", "vite.config.js", ".gitignore"]
+entrypoint = "src/App.tsx"
+
+[nix]
+channel = "stable-24_05"
+
+[unitTest]
+language = "nodejs"
+
+[deployment]
+deploymentTarget = "static"
+build = ["npm", "run", "build"]
+publicDir = "dist"
+
+[[ports]]
+localPort = 5173
+externalPort = 80
+
+[agent]
+expertMode = true
